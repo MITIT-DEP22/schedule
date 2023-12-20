@@ -37,7 +37,7 @@ services:
       - /etc/nginx/ssl/:/etc/nginx/ssl/
 
   schedule-google-modules:
-    build: ./google-modules
+    build: ./schedule.google-modules
     ports:
       - "8091:8091"
     expose:
