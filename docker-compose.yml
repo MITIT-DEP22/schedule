@@ -55,4 +55,4 @@ services:
     restart: always
 
 volumes:
-  mongodb_data:
+ mongodb_data:
