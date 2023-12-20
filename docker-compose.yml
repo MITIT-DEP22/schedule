@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  schedule-front:
+    build: ./e-rozklad
+    ports:
+      - "443:443"
+    expose:
+      - "443"
+    depends_on:
+      - 'schedule-back'
+    restart: always
+    volumes:
+      - /etc/nginx/ssl/:/etc/nginx/ssl/
+    environment:
+      - SSL_CRT_FILE=/etc/nginx/ssl/schedule.mitit.crt
+      - SSL_KEY_FILE=/etc/nginx/ssl/schedule.mitit.key
+
+  schedule-back:
+    build: ./schedule-backend
+    ports:
+      - "5000:5000"
+    expose:
+      - "5000"
+    restart: always
+    volumes:
+      - /etc/nginx/ssl/:/schedule/ssl/
+
+  schedule-parser:
+    build: ./schedule-parser
+    ports:
+      - "8090:8090"
+    expose:
+      - "8090"
+    restart: always
+    volumes:
+      - /etc/nginx/ssl/:/etc/nginx/ssl/
+
+  schedule-google-modules:
+    build: ./google-modules
+    ports:
+      - "8091:8091"
+    expose:
+      - "8091"
+    restart: always
+    volumes:
+      - /etc/nginx/ssl/:/etc/nginx/ssl/
+  mongodb:
+    image: mongo:4.4
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    command: mongod --auth
+    restart: always
+
+volumes:
+  mongodb_data:
