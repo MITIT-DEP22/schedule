@@ -2,7 +2,7 @@ version: "3"
 
 services:
   schedule-front:
-    build: ./e-rozklad
+    build: ./schedule_mitit_front
     ports:
       - "443:443"
     expose:
