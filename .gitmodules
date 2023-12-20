@@ -1,0 +1,12 @@
+[submodule "schedule.google-modules"]
+	path = schedule.google-modules
+	url = https://github.com/MITIT-DEP22/schedule.google-modules
+[submodule "schedule-parser"]
+	path = schedule-parser
+	url = https://github.com/MITIT-DEP22/schedule-parser
+[submodule "schedule-backend"]
+	path = schedule-backend
+	url = https://github.com/MITIT-DEP22/schedule-backend
+[submodule "schedule_mitit_front"]
+	path = schedule_mitit_front
+	url = https://github.com/MITIT-DEP22/schedule_mitit_front
