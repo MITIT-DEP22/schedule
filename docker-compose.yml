@@ -4,9 +4,9 @@ services:
   schedule-front:
     build: ./schedule_mitit_front
     ports:
-      - "443:443"
+      - ${SCHEDULE_FRONT_PORT}:${SCHEDULE_FRONT_PORT}
     expose:
-      - "443"
+      - ${SCHEDULE_FRONT_PORT}
     depends_on:
       - 'schedule-back'
     restart: always
@@ -19,9 +19,9 @@ services:
   schedule-back:
     build: ./schedule-backend
     ports:
-      - "5000:5000"
+      - ${SCHEDULE_BACKEND_PORT}:${SCHEDULE_BACKEND_PORT}
     expose:
-      - "5000"
+      - ${SCHEDULE_BACKEND_PORT}
     restart: always
     volumes:
       - /etc/nginx/ssl/:/schedule/ssl/
@@ -29,9 +29,9 @@ services:
   schedule-parser:
     build: ./schedule-parser
     ports:
-      - "8090:8090"
+      - ${SCHEDULE_PARSER_PORT}:${SCHEDULE_PARSER_PORT}
     expose:
-      - "8090"
+      - ${SCHEDULE_PARSER_PORT}
     restart: always
     volumes:
       - /etc/nginx/ssl/:/etc/nginx/ssl/
@@ -39,9 +39,9 @@ services:
   schedule-google-modules:
     build: ./schedule.google-modules
     ports:
-      - "8091:8091"
+      - ${SCHEDULE_GOOGLE_MODULES_PORT}:${SCHEDULE_GOOGLE_MODULES_PORT}
     expose:
-      - "8091"
+      - ${SCHEDULE_GOOGLE_MODULES_PORT}
     restart: always
     volumes:
       - /etc/nginx/ssl/:/etc/nginx/ssl/
