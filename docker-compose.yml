@@ -55,5 +55,5 @@ services:
     restart: always
 
 volumes:
- schedule_mongodb_data:
+ mongodb_data:
    external: true 
