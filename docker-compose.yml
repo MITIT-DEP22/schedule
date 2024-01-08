@@ -11,10 +11,7 @@ services:
       - 'schedule-back'
     restart: always
     volumes:
-      - /etc/nginx/ssl/:/etc/nginx/ssl/
-    environment:
-      - SSL_CRT_FILE=/etc/nginx/ssl/schedule.mitit.crt
-      - SSL_KEY_FILE=/etc/nginx/ssl/schedule.mitit.key
+      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
 
   schedule-back:
     build: ./schedule-backend
@@ -24,7 +21,7 @@ services:
       - ${SCHEDULE_BACKEND_PORT}
     restart: always
     volumes:
-      - /etc/nginx/ssl/:/schedule/ssl/
+      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
 
   schedule-parser:
     build: ./schedule-parser
@@ -34,7 +31,7 @@ services:
       - ${SCHEDULE_PARSER_PORT}
     restart: always
     volumes:
-      - /etc/nginx/ssl/:/etc/nginx/ssl/
+      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
 
   schedule-google-modules:
     build: ./schedule.google-modules
@@ -44,7 +41,7 @@ services:
       - ${SCHEDULE_GOOGLE_MODULES_PORT}
     restart: always
     volumes:
-      - /etc/nginx/ssl/:/etc/nginx/ssl/
+      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
   mongodb:
     image: mongo:4.4
     ports:
