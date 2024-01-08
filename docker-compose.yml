@@ -45,7 +45,7 @@ services:
   mongodb:
     image: mongo:4.4
     ports:
-      - "27017:27017"
+      - ${SCHEDULE_MONGODB_PORT}:${SCHEDULE_MONGODB_PORT}
     volumes:
       - schedule_mongodb_data:/data/db
     command: mongod --auth
