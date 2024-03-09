@@ -43,14 +43,15 @@ services:
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
   mongodb:
-    image: mongo:4.4
+    image: mongo:4.4.6
     ports:
-      - ${SCHEDULE_MONGODB_PORT}:${SCHEDULE_MONGODB_PORT}
+      - ${SCHEDULE_MONGODB_PORT}:27017
     volumes:
       - schedule_mongodb_data:/data/db
     command: mongod --auth
     restart: always
-
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${SCHEDULE_MONGODB_INIT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${SCHEDULE_MONGODB_INIT_PASSWORD}
 volumes:
  schedule_mongodb_data:
-   external: true 
