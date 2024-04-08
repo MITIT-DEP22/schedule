@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   schedule-front:
     build: ./schedule_mitit_front
@@ -8,7 +6,7 @@ services:
     expose:
       - ${SCHEDULE_FRONT_PORT}
     depends_on:
-      - 'schedule-back'
+      - "schedule-back"
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
@@ -54,4 +52,4 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${SCHEDULE_MONGODB_INIT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${SCHEDULE_MONGODB_INIT_PASSWORD}
 volumes:
- schedule_mongodb_data:
+  schedule_mongodb_data:
