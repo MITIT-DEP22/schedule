@@ -1,0 +1,40 @@
+services:
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    ports:
+      - "9100:9100"
+    networks:
+      - schedule
+    restart: unless-stopped
+    labels:
+      promtail.logs: enable
+      application_name: main/node-exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+
+  promtail:
+    image: grafana/promtail:2.9.6
+    ports:
+      - "9080:9080"
+    depends_on:
+      - node-exporter
+    networks:
+      - schedule
+    restart: unless-stopped
+    labels:
+      promtail.logs: enable
+      application-name: main/promtail
+    volumes:
+      - promtail_data:/var/lib/promtail
+      - ./promtail/promtail.yaml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  node-exporter_data:
+  promtail_data:
+
+networks:
+  schedule:
+    name: schedule

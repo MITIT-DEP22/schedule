@@ -10,6 +10,9 @@ services:
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    labels:
+      promtail.logs: enable
+      application_name: main/schedule-frontend
 
   schedule-back:
     build: ./schedule-backend
@@ -17,9 +20,14 @@ services:
       - ${SCHEDULE_BACKEND_PORT}:${SCHEDULE_BACKEND_PORT}
     expose:
       - ${SCHEDULE_BACKEND_PORT}
+    depends_on:
+      - "mongodb"
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    labels:
+      promtail.logs: enable
+      application_name: main/schedule-backend
 
   schedule-parser:
     build: ./schedule-parser
@@ -30,6 +38,9 @@ services:
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    labels:
+      promtail.logs: enable
+      application_name: main/schedule-parser
 
   schedule-google-modules:
     build: ./schedule.google-modules
@@ -40,6 +51,10 @@ services:
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    labels:
+      promtail.logs: enable
+      application_name: main/schedule-google-modules
+
   mongodb:
     image: mongo:4.4.6
     ports:
@@ -51,5 +66,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${SCHEDULE_MONGODB_INIT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${SCHEDULE_MONGODB_INIT_PASSWORD}
+    labels:
+      promtail.logs: enable
+      application_name: main/mongodb
+
 volumes:
   schedule_mongodb_data:
+
+networks:
+  schedule:
+    name: schedule
