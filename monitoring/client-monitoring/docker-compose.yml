@@ -31,22 +31,6 @@ services:
       - ./promtail/promtail.yaml:/etc/promtail/config.yml
       - /var/run/docker.sock:/var/run/docker.sock
 
-  nginx-exporter:
-    image: nginx/nginx-prometheus-exporter:1.1.0
-    ports:
-      - "9113:9113"
-    networks:
-      - schedule
-    restart: unless-stopped
-    labels:
-      promtail.logs: enable
-      application_name: main/nginx-exporter
-    volumes:
-      - nginx-exporter_data:/etc/nginx-exporter
-    command:
-      - -nginx.scrape-uri
-      - https://schedule-front:443/nginx_status
-
 volumes:
   node-exporter_data:
   promtail_data:
