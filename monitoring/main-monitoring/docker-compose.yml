@@ -8,6 +8,8 @@ services:
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/grafana.ini/:/etc/grafana/grafana.ini/
+      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
     labels:
       promtail.logs: enable
       application_name: main/grafana
