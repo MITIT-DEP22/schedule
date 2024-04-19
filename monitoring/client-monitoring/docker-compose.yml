@@ -1,8 +1,6 @@
 services:
   node-exporter:
     image: prom/node-exporter:v1.7.0
-    ports:
-      - "9100:9100"
     networks:
       - schedule
     restart: unless-stopped
@@ -16,8 +14,6 @@ services:
 
   promtail:
     image: grafana/promtail:2.9.6
-    ports:
-      - "9080:9080"
     networks:
       - schedule
     depends_on:

@@ -14,8 +14,6 @@ services:
 
   loki:
     image: grafana/loki:2.8.11
-    ports:
-      - "3100:3100"
     networks:
       - schedule
     volumes:
@@ -26,8 +24,6 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.51.0
-    ports:
-      - "9090:9090"
     networks:
       - schedule
     volumes:
@@ -39,8 +35,6 @@ services:
 
   blackbox-exporter:
     image: prom/blackbox-exporter:v0.24.0
-    ports:
-      - "9115:9115"
     networks:
       - schedule
     volumes:
