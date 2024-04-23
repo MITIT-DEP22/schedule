@@ -7,5 +7,4 @@
     # Main machine Blackbox exporter
     - blackbox-exporter:9115:_:http_2xx:_::_::_:http://prometheus:9090/
     - blackbox-exporter:9115:_:http_2xx:_::_::_:http://loki:3100/ready
-    - blackbox-exporter:9115:_:http_2xx:_::_::_:http://grafana:3000/
     - blackbox-exporter:9115:_:http_2xx:_::_::_:http://node-exporter:9100/
