@@ -40,10 +40,6 @@ services:
     labels:
       promtail.logs: enable
       application_name: main/schedule-frontend
-    environment:
-      - REACT_APP_HOST_SCHEDULE=${HOST_IP}:5000/api
-      - REACT_APP_HOST_PARSER=${HOST_IP}:5000/parser
-      - REACT_APP_HOST_GOOGLE_MODULES=${HOST_IP}:5000/google-modules
 
   schedule-back:
     build: ./schedule-backend
