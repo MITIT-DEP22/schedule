@@ -1,2 +1,4 @@
 # ENVIROMENT
 .env
+
+*node_modules

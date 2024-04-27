@@ -1,10 +1,37 @@
 services:
+  api-gateway:
+    build: ./gateway-express
+    ports:
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+    depends_on:
+      - "schedule-back"
+      - "schedule-google-modules"
+      - "schedule-parser"
+    restart: always
+    volumes:
+      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    labels:
+      promtail.logs: enable
+      application_name: main/schedule-api-gateway
+    environment:
+      - PORT=${API_GATEWAY_PORT}
+      # BACKEND
+      - API_GATEWAY_BACKEND_ROUTE=/api
+      - API_GATEWAY_BACKEND_PROTOCOL=${API_GATEWAY_BACKEND_PROTOCOL}
+      - API_GATEWAY_BACKEND_TARGET=schedule-back:${SCHEDULE_BACKEND_PORT}/api
+      # PARSER
+      - API_GATEWAY_PARSER_ROUTE=/parser
+      - API_GATEWAY_PARSER_PROTOCOL=${API_GATEWAY_PARSER_PROTOCOL}
+      - API_GATEWAY_PARSER_TARGET=schedule-parser:${SCHEDULE_PARSER_PORT}/parser
+      # GOOGLE MODULES
+      - API_GATEWAY_GOOGLE_MODULES_ROUTE=/google-modules
+      - API_GATEWAY_GOOGLE_MODULES_PROTOCOL=${API_GATEWAY_GOOGLE_MODULES_PROTOCOL}
+      - API_GATEWAY_GOOGLE_MODULES_TARGET=schedule-google-modules:${SCHEDULE_GOOGLE_MODULES_PORT}/google-modules
+
   schedule-front:
     build: ./schedule_mitit_front
     ports:
       - ${SCHEDULE_FRONT_PORT}:${SCHEDULE_FRONT_PORT}
-    expose:
-      - ${SCHEDULE_FRONT_PORT}
     depends_on:
       - "schedule-back"
     restart: always
@@ -13,13 +40,13 @@ services:
     labels:
       promtail.logs: enable
       application_name: main/schedule-frontend
+    environment:
+      - REACT_APP_HOST_SCHEDULE=${HOST_IP}:5000/api
+      - REACT_APP_HOST_PARSER=${HOST_IP}:5000/parser
+      - REACT_APP_HOST_GOOGLE_MODULES=${HOST_IP}:5000/google-modules
 
   schedule-back:
     build: ./schedule-backend
-    ports:
-      - ${SCHEDULE_BACKEND_PORT}:${SCHEDULE_BACKEND_PORT}
-    expose:
-      - ${SCHEDULE_BACKEND_PORT}
     depends_on:
       - "mongodb"
     restart: always
@@ -35,10 +62,6 @@ services:
 
   schedule-parser:
     build: ./schedule-parser
-    ports:
-      - ${SCHEDULE_PARSER_PORT}:${SCHEDULE_PARSER_PORT}
-    expose:
-      - ${SCHEDULE_PARSER_PORT}
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
@@ -52,10 +75,6 @@ services:
 
   schedule-google-modules:
     build: ./schedule.google-modules
-    ports:
-      - ${SCHEDULE_GOOGLE_MODULES_PORT}:${SCHEDULE_GOOGLE_MODULES_PORT}
-    expose:
-      - ${SCHEDULE_GOOGLE_MODULES_PORT}
     restart: always
     volumes:
       - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
