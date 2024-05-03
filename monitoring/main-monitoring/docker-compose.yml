@@ -20,6 +20,7 @@ services:
       - schedule
     volumes:
       - loki_data:/loki
+      - ./loki/:/etc/loki/
     labels:
       promtail.logs: enable
       application_name: main/loki
