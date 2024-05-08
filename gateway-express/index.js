@@ -6,6 +6,7 @@ const {
   createProxyMiddleware,
   fixRequestBody,
 } = require("http-proxy-middleware");
+
 const https = require("https");
 const fs = require("fs");
 const { env } = require("process");
@@ -30,6 +31,11 @@ app.disable("x-powered-by"); // Hide Express server information
 
 const services = [
   {
+    route: "/socket.io",
+    target: `https://schedule-back:5000/socket.io`,
+    ws: true,
+  },
+  {
     route: process.env.API_GATEWAY_BACKEND_ROUTE,
     target: `${process.env.API_GATEWAY_BACKEND_PROTOCOL}://${process.env.API_GATEWAY_BACKEND_TARGET}`,
   },
@@ -43,7 +49,7 @@ const services = [
   },
 ];
 
-services.forEach(({ route, target }) => {
+services.forEach(({ route, target, ws }) => {
   // Proxy options
   const proxyOptions = {
     target,
@@ -54,6 +60,10 @@ services.forEach(({ route, target }) => {
     },
     onProxyReq: fixRequestBody,
   };
+
+  if (ws) {
+    proxyOptions.ws = true;
+  }
 
   app.use(route, createProxyMiddleware(proxyOptions));
 });
