@@ -24,23 +24,6 @@ app.use(
   })
 );
 
-const checkPassword = (req, res, next) => {
-  const password = req.headers["x-api-password"]; // Перевіряємо заголовок x-api-password
-  const correctPassword = process.env.API_PASSWORD; // Отримуємо пароль з середовища
-  if (password && password === correctPassword) {
-    next(); // Пароль вірний, продовжуємо обробку запиту
-  } else {
-    res.status(403).json({
-      code: 403,
-      status: "Error",
-      message: "Access denied. Invalid or missing API password.",
-      data: new Date(),
-    });
-  }
-};
-
-app.use(checkPassword);
-
 app.use(helmet()); // Add security headers
 app.use(morgan("combined")); // Log HTTP requests
 app.disable("x-powered-by"); // Hide Express server information
