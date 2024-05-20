@@ -14,9 +14,37 @@ let dotenv = require("dotenv").config();
 
 const app = express();
 
+const expectedApiKey = process.env.API_KEY;
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS.replace(/\n/g, "")
   .split(",")
   .map((origin) => origin.trim());
+
+const customOriginMiddleware = (req, res, next) => {
+  const protocol = req.protocol; // Extract protocol (http or https)
+  const host = req.headers.host; // Extract host from headers
+  const origin = `${protocol}://${host}`; // Combine protocol and host
+  const apiKey = req.headers["api-key"]; // Extract Api-Key from headers
+
+  // Check if the combined origin is in the allowedOrigins list
+
+  if (
+    apiKey === expectedApiKey ||
+    allowedOrigins.includes("*") ||
+    allowedOrigins.includes(origin)
+  ) {
+    next(); // If allowed, proceed to the next middleware
+  } else {
+    res.status(403).json({
+      code: 403,
+      status: "Error",
+      message: "Forbidden: Origin not allowed.",
+      data: null,
+    });
+  }
+};
+
+app.use(customOriginMiddleware);
 
 app.use(
   cors({
@@ -32,7 +60,7 @@ app.disable("x-powered-by"); // Hide Express server information
 const services = [
   {
     route: "/socket.io",
-    target: `https://schedule-back:5000/socket.io`,
+    target: `${process.env.API_GATEWAY_BACKEND_PROTOCOL}://${process.env.API_GATEWAY_BACKEND_TARGET_SOCKETS}`,
     ws: true,
   },
   {
