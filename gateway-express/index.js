@@ -6,7 +6,7 @@ const {
   createProxyMiddleware,
   fixRequestBody,
 } = require("http-proxy-middleware");
-
+const IP = require("ip");
 const https = require("https");
 const fs = require("fs");
 const { env } = require("process");
@@ -20,31 +20,33 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS.replace(/\n/g, "")
   .split(",")
   .map((origin) => origin.trim());
 
-// const customOriginMiddleware = (req, res, next) => {
-// const protocol = req.protocol; // Extract protocol (http or https)
-// const host = req.headers.host; // Extract host from headers
-// const origin = `${protocol}://${host}`; // Combine protocol and host
-// const apiKey = req.headers["api-key"]; // Extract Api-Key from headers
+const ALLOWED_IP_ADDRESES = process.env.ALLOWED_IP_ADDRESES.replace(/\n/g, "")
+  .split(",")
+  .map((origin) => origin.trim());
 
-// // Check if the combined origin is in the allowedOrigins list
+const customOriginMiddleware = (req, res, next) => {
+  const ipAddress = IP.address();
+  const apiKey = req.headers["api-key"]; // Extract Api-Key from headers
 
-// if (
-//   apiKey === expectedApiKey ||
-//   allowedOrigins.includes("*") ||
-//   allowedOrigins.includes(origin)
-// ) {
-//   next(); // If allowed, proceed to the next middleware
-// } else {
-//   res.status(403).json({
-//     code: 403,
-//     status: "Error",
-//     message: "Forbidden: Origin not allowed.",
-//     data: null,
-//   });
-// }
-// };
+  console.log(ipAddress);
 
-// app.use(customOriginMiddleware);
+  // if (
+  //   apiKey === expectedApiKey ||
+  //   ALLOWED_IP_ADDRESES.includes("*") ||
+  //   ALLOWED_IP_ADDRESES.includes(ipAddress)
+  // ) {
+  //   next(); // If allowed, proceed to the next middleware
+  // } else {
+  //   res.status(403).json({
+  //     code: 403,
+  //     status: "Error",
+  //     message: "Forbidden: Origin not allowed.",
+  //     data: null,
+  //   });
+  // }
+};
+
+app.use(customOriginMiddleware);
 
 app.use(
   cors({
