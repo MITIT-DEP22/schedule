@@ -13,8 +13,6 @@ let dotenv = require("dotenv").config();
 
 const app = express();
 
-const expectedApiKey = process.env.API_KEY;
-
 const allowedOrigins = process.env.ALLOWED_ORIGINS.replace(/\n/g, "")
   .split(",")
   .map((origin) => origin.trim());
