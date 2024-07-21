@@ -10,18 +10,18 @@ Created in 2023 by:
 [Back End](https://github.com/MITIT-DEP22/schedule-backend) <br>
 Created in 2023 by:
 
-- [Denys Hryshchenko](https://github.com/Denis11333)
+- [Denys Hryshchenko](https://github.com/Denys11333)
 
 [Parser](https://github.com/MITIT-DEP22/schedule-parser) <br>
 Created in 2023 by:
 
-- [Denys Hryshchenko](https://github.com/Denis11333)
+- [Denys Hryshchenko](https://github.com/Denys11333)
 - [Dmytro Bykov](https://github.com/pishexod)
 
 [Google Module](https://github.com/MITIT-DEP22/schedule.google-modules) <br>
 Created in 2023 by:
 
-- [Denys Hryshchenko](https://github.com/Denis11333)
+- [Denys Hryshchenko](https://github.com/Denys11333)
 - [Dmytro Bykov](https://github.com/pishexod)
 
 # To start application
