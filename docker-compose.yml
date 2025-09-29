@@ -2,105 +2,122 @@ services:
   api-gateway:
     build: ./gateway-express
     ports:
-      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
     depends_on:
       - "schedule-back"
       - "schedule-google-modules"
       - "schedule-parser"
     restart: always
-    volumes:
-      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
-    labels:
-      promtail.logs: enable
-      application_name: main/schedule-api-gateway
+    # volumes: # Закоментовано для HTTP-запуску
+    #   - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    networks:
+      - schedule
     environment:
+      # Налаштування Gateway
       - PORT=${API_GATEWAY_PORT}
+      - SSL_ENABLED=false
+      - SSL_KEY_PATH=${SSL_PATH_IN_CONTAINER}/key.pem
+      - SSL_CERT_PATH=${SSL_PATH_IN_CONTAINER}/cert.pem
+      - ALLOWED_ORIGINS=http://${HOST_IP}:${SCHEDULE_FRONT_PORT}
+      
+      # === Правила проксування ===
       # BACKEND
       - API_GATEWAY_BACKEND_ROUTE=/api
-      - API_GATEWAY_BACKEND_PROTOCOL=${API_GATEWAY_BACKEND_PROTOCOL}
-      - API_GATEWAY_BACKEND_TARGET=schedule-back:${SCHEDULE_BACKEND_PORT}/api
-      - API_GATEWAY_BACKEND_TARGET_SOCKETS=schedule-back:${SCHEDULE_BACKEND_PORT}/socket.io
+      - API_GATEWAY_BACKEND_PROTOCOL=http
+      - API_GATEWAY_BACKEND_TARGET=schedule-back:${SCHEDULE_BACKEND_PORT}/api/v1
+      - API_GATEWAY_BACKEND_TARGET_SOCKETS=schedule-back:${SCHEDULE_BACKEND_PORT}
       # PARSER
       - API_GATEWAY_PARSER_ROUTE=/parser
-      - API_GATEWAY_PARSER_PROTOCOL=${API_GATEWAY_PARSER_PROTOCOL}
+      - API_GATEWAY_PARSER_PROTOCOL=http
       - API_GATEWAY_PARSER_TARGET=schedule-parser:${SCHEDULE_PARSER_PORT}/parser
       # GOOGLE MODULES
       - API_GATEWAY_GOOGLE_MODULES_ROUTE=/google-modules
-      - API_GATEWAY_GOOGLE_MODULES_PROTOCOL=${API_GATEWAY_GOOGLE_MODULES_PROTOCOL}
-      - API_GATEWAY_GOOGLE_MODULES_TARGET=schedule-google-modules:${SCHEDULE_GOOGLE_MODULES_PORT}/google-modules
+      - API_GATEWAY_GOOGLE_MODULES_PROTOCOL=http
+      - API_GATEWAY_GOOGLE_MODULES_TARGET=schedule-google-modules:${SCHEDULE_GOOGLE_MODULES_PORT}
 
   schedule-front:
-    build: ./schedule_mitit_front
+    build:
+      context: ./schedule_mitit_front
+      args:
+        # Ці змінні будуть "запечені" в код фронтенду під час збірки
+        - REACT_APP_HOST_SCHEDULE=http://${HOST_IP}:${API_GATEWAY_PORT}/api
+        - REACT_APP_HOST_PARSER=http://${HOST_IP}:${API_GATEWAY_PORT}/parser
+        - REACT_APP_HOST_GOOGLE_MODULES=http://${HOST_IP}:${API_GATEWAY_PORT}/google-modules
+        - REACT_APP_SOCKET_CONNECTION=ws://${HOST_IP}:${API_GATEWAY_PORT}
     ports:
-      - ${SCHEDULE_FRONT_PORT}:${SCHEDULE_FRONT_PORT}
+      - "${SCHEDULE_FRONT_PORT}:80"
     depends_on:
-      - "schedule-back"
+      - api-gateway
     restart: always
-    volumes:
-      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
-    labels:
-      promtail.logs: enable
-      application_name: main/schedule-frontend
+    networks:
+      - schedule
 
   schedule-back:
     build: ./schedule-backend
     depends_on:
-      - "mongodb"
+      - mongodb
     restart: always
-    volumes:
-      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
-    labels:
-      promtail.logs: enable
-      application_name: main/schedule-backend
+    # volumes:
+    #   - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    networks:
+      - schedule
     environment:
       - PORT=${SCHEDULE_BACKEND_PORT}
       - MONGO_URL=${SCHEDULE_MONGO_URL}
       - MONGO_DB_NAME=${SCHEDULE_MONGO_DB_NAME}
+      - NODE_ENV=development
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - ACCESS_TOKEN_EXPIRATION=15m
+      - REFRESH_TOKEN_EXPIRATION=30d
+      - SSL_ENABLED=false
+      - ALLOWED_ORIGINS=http://${HOST_IP}:${SCHEDULE_FRONT_PORT}
 
   schedule-parser:
     build: ./schedule-parser
     restart: always
-    volumes:
-      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
-    labels:
-      promtail.logs: enable
-      application_name: main/schedule-parser
+    # volumes:
+    #  - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    networks:
+      - schedule
     environment:
       - PORT=${SCHEDULE_PARSER_PORT}
       - MONGO_URL=${SCHEDULE_MONGO_URL}
       - MONGO_DB_NAME=${SCHEDULE_MONGO_DB_NAME}
+      - SSL_ENABLED=false
+      - ALLOWED_ORIGINS=http://${HOST_IP}:${SCHEDULE_FRONT_PORT}
+    platform: linux/amd64
 
   schedule-google-modules:
     build: ./schedule.google-modules
     restart: always
-    volumes:
-      - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
-    labels:
-      promtail.logs: enable
-      application_name: main/schedule-google-modules
+    # volumes:
+    #   - ${SSL_PATH_ON_OS}:${SSL_PATH_IN_CONTAINER}
+    networks:
+      - schedule
     environment:
       - PORT=${SCHEDULE_GOOGLE_MODULES_PORT}
       - MONGO_URL=${SCHEDULE_MONGO_URL}
       - MONGO_DB_NAME=${SCHEDULE_MONGO_DB_NAME}
+      - SSL_ENABLED=false
+      - EMAIL_SENDER_PASSWORD=changeme
 
   mongodb:
     image: mongo:4.4.6
     ports:
-      - ${SCHEDULE_MONGODB_PORT}:27017
+      - "${SCHEDULE_MONGODB_PORT}:27017"
     volumes:
       - schedule_mongodb_data:/data/db
-    command: mongod --auth
     restart: always
+    networks:
+      - schedule
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${SCHEDULE_MONGODB_INIT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${SCHEDULE_MONGODB_INIT_PASSWORD}
-    labels:
-      promtail.logs: enable
-      application_name: main/mongodb
 
 volumes:
   schedule_mongodb_data:
 
 networks:
   schedule:
-    name: schedule
+    driver: bridge
